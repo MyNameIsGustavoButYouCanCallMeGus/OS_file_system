@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">File Details</h1>
+        <div class="card">
+            <div class="card-header">
+                {{ file.name }}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">File Information</h5>
+                <p class="card-text"><strong>ID:</strong> {{ file.id }}</p>
+                <p class="card-text"><strong>Google Drive ID:</strong> {{ file.google_drive_id }}</p>
+                <p class="card-text"><strong>Hash:</strong> {{ file.hash }}</p>
+                <p class="card-text"><strong>Created At:</strong> {{ file.created_at }}</p>
+
+                <h5 class="card-title mt-4">File Versions</h5>
+                <ul class="list-group">
+                    {% for version in file.versions %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Version {{ version.version }}
+                        <div>
+                            <a href="{{ url_for('download_file', file_id=file.id, version=version.version) }}" class="btn btn-success btn-sm ml-2">Download</a>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <a href="{{ url_for('list_files') }}" class="btn btn-primary mt-4">Back to List</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

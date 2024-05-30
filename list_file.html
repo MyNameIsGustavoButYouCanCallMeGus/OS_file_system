@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Files</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">List of Files</h1>
+        <a href="/" class="btn btn-primary btn-sm ml-2">Home</a>
+        <ul class="list-group">
+            {% for file in files %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ file.name }}
+                <div>
+                    <a href="/files/details/{{ file.id }}" class="btn btn-primary btn-sm ml-2">Details</a>
+                    <button onclick="showVersionModal({{ file.id }})" class="btn btn-success btn-sm ml-2">Download</button>
+                    <button onclick="deleteFile({{ file.id }})" class="btn btn-danger btn-sm ml-2">Delete</button>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="versionModal" tabindex="-1" aria-labelledby="versionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="versionModalLabel">Select File Version</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="downloadForm" method="get">
+                        <div class="form-group">
+                            <label for="versionSelect">Version</label>
+                            <select class="form-control" id="versionSelect" name="version">
+                                <!-- Options will be dynamically loaded here -->
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Download</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function deleteFile(fileId) {
+            if (confirm('Are you sure you want to delete this file?')) {
+                fetch('/delete_files/' + fileId, {
+                    method: 'DELETE',
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Error deleting file');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error deleting file');
+                });
+            }
+        }
+
+        function showVersionModal(fileId) {
+            // Fetch file versions
+            fetch('/files/details/' + fileId)
+                .then(response => response.json())
+                .then(data => {
+                    const versionSelect = document.getElementById('versionSelect');
+                    versionSelect.innerHTML = '';
+
+                    data.versions.forEach(version => {
+                        const option = document.createElement('option');
+                        option.value = version.version;
+                        option.text = `Version ${version.version}`;
+                        versionSelect.appendChild(option);
+                    });
+
+                    const downloadForm = document.getElementById('downloadForm');
+                    downloadForm.action = `/download_file/${fileId}`;
+
+                    $('#versionModal').modal('show');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error fetching file versions');
+                });
+        }
+    </script>
+</body>
+</html>
